@@ -37,9 +37,9 @@ public class CuentaServiceTest {
         cuentaMock.setTitular("John Doe");
         cuentaMock.setSaldo(100);
         cuentaMock.setFechaCreacion(LocalDateTime.now());
-
-        CuentaBancaria cuentaCreada = cuentaBancariaService.create(cuentaMock);
         when(cuentaBancariaRepository.save(any(CuentaBancaria.class))).thenReturn(cuentaMock);
+        CuentaBancaria cuentaCreada = cuentaBancariaService.create(cuentaMock);
+
 
         assertNotNull(cuentaCreada);
         assertEquals("John Doe", cuentaCreada.getTitular());
