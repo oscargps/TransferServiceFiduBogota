@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class WithDrawRequest {
+public class DepositRequestDto {
     private Integer monto;
+
 
 }

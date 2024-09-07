@@ -2,18 +2,15 @@ package com.FiduBogota.TransferService.persistence.service;
 
 import com.FiduBogota.TransferService.Domain.Entity.CuentaBancaria;
 import com.FiduBogota.TransferService.Domain.Repository.CuentaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class CuentaBancariaService {
 
     private final CuentaRepository cuentaRepository;
 
-
-    public CuentaBancariaService(CuentaRepository cuentaRepository){
-       this.cuentaRepository = cuentaRepository;
-    }
 
 
     public CuentaBancaria create(CuentaBancaria cuentaBancaria){

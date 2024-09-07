@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,6 +29,10 @@ public class Transaccion {
 
     @Column(nullable = false)
     private LocalDateTime fecha;
+
+    public Transaccion(){
+        this.fecha =  LocalDateTime.now();
+    }
 
 
 }

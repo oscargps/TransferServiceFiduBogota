@@ -3,10 +3,10 @@ package com.FiduBogota.TransferService.Domain.Entity;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -21,6 +21,7 @@ public class CuentaBancaria {
     private Long id;
 
     @Column(nullable = false)
+    @Size(min = 1, max = 100)
     private String titular;
 
     @Column(nullable = false)
