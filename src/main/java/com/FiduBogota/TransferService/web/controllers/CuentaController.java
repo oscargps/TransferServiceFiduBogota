@@ -7,14 +7,11 @@ import com.FiduBogota.TransferService.Domain.dto.DepositRequest;
 import com.FiduBogota.TransferService.Domain.dto.WithDrawRequest;
 import com.FiduBogota.TransferService.persistence.service.CuentaBancariaService;
 import com.FiduBogota.TransferService.persistence.service.TransaccionService;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.reflect.InvocationTargetException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 @Slf4j
@@ -45,13 +42,13 @@ public class CuentaController {
         }
 
         CuentaBancaria cuentaBancaria = cuentaBancariaOptional.get();
-        cuentaBancaria.setSaldo(cuentaBancaria.getSaldo());
+        cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() + depositRequest.getMonto());
         this.cuentaBancariaService.create(cuentaBancaria);
 
         Transaccion transaccion = new Transaccion();
         transaccion.setCuentaBancaria(cuentaBancaria);
         transaccion.setTipo(TipoTransaccion.DEPOSITO);
-        transaccion.setMonto(depositRequest.getMonto() + depositRequest.getMonto());
+        transaccion.setMonto(depositRequest.getMonto());
         transaccion.setFecha(LocalDateTime.now());
         this.transaccionService.create(transaccion);
 
