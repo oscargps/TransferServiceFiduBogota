@@ -41,7 +41,7 @@ public class CuentaController {
 
         if (depositRequest.getMonto() <= 0){
             log.info("Monto de deposito negativo");
-            ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build();
         }
 
         CuentaBancaria cuentaBancaria = cuentaBancariaOptional.get();
