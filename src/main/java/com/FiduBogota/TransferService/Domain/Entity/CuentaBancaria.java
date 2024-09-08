@@ -2,6 +2,7 @@ package com.FiduBogota.TransferService.Domain.Entity;
 
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -30,12 +31,17 @@ public class CuentaBancaria {
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;
 
-    @OneToMany(mappedBy = "cuentaBancaria", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(nullable = false, columnDefinition = "TINYINT")
+    private Boolean isBlock;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "cuentaBancaria", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Transaccion> transacciones;
 
     public CuentaBancaria() {
         this.fechaCreacion = LocalDateTime.now();
         this.saldo = 0;
+        this.isBlock = false;
     }
 
 }

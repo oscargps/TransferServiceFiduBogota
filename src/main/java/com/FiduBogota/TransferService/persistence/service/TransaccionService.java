@@ -7,6 +7,8 @@ import com.FiduBogota.TransferService.Domain.Repository.TransaccionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class TransaccionService {
@@ -26,6 +28,10 @@ public class TransaccionService {
         transaccion.setMonto(monto);
         transaccion.setTipo(TipoTransaccion.RETIRO);
         return this.transaccionRepository.save(transaccion);
+    }
+
+    public List<Transaccion> getTransactionsByAccount(CuentaBancaria cuentaBancaria){
+        return this.transaccionRepository.findByAccount(cuentaBancaria);
     }
 
 }

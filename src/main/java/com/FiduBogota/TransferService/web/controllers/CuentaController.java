@@ -1,6 +1,7 @@
 package com.FiduBogota.TransferService.web.controllers;
 
 import com.FiduBogota.TransferService.Domain.Entity.CuentaBancaria;
+import com.FiduBogota.TransferService.Domain.Entity.Transaccion;
 import com.FiduBogota.TransferService.Domain.dto.DepositRequestDto;
 import com.FiduBogota.TransferService.Domain.dto.WithDrawRequestDto;
 import com.FiduBogota.TransferService.persistence.service.CuentaBancariaService;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 @Slf4j
 @RestController
@@ -39,6 +41,9 @@ public class CuentaController {
             return ResponseEntity.badRequest().build();
         }
         CuentaBancaria cuentaBancaria = cuentaBancariaOptional.get();
+        if (cuentaBancaria.getIsBlock()){
+            return  ResponseEntity.internalServerError().body("Cuenta bloqueada");
+        }
         cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() + depositRequestDto.getMonto());
         this.cuentaBancariaService.create(cuentaBancaria);
         this.transaccionService.deposit(cuentaBancaria, depositRequestDto.getMonto());
@@ -61,6 +66,9 @@ public class CuentaController {
             log.info("saldo insuficiente para retiro");
             return ResponseEntity.internalServerError().build();
         }
+        if (cuentaBancaria.getIsBlock()){
+            return  ResponseEntity.internalServerError().body("Cuenta bloqueada");
+        }
         cuentaBancaria.setSaldo(cuentaBancaria.getSaldo() - withDrawRequestDto.getMonto());
         this.cuentaBancariaService.create(cuentaBancaria);
         this.transaccionService.withDraw(cuentaBancaria, withDrawRequestDto.getMonto());
@@ -73,5 +81,22 @@ public class CuentaController {
 
         return cuentaBancariaOptional.map(cuentaBancaria -> ResponseEntity.ok(cuentaBancaria.getSaldo())).orElseGet(() -> ResponseEntity.notFound().build());
 
+    }
+
+    @GetMapping("/{id}/transactions")
+    public  ResponseEntity<List<Transaccion>> transactions(@PathVariable Long id){
+        Optional<CuentaBancaria> cuentaBancariaOptional = Optional.ofNullable(this.cuentaBancariaService.find(id));
+        return cuentaBancariaOptional.map(cuentaBancaria -> ResponseEntity.ok(this.transaccionService.getTransactionsByAccount(cuentaBancaria))).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/toggle-block")
+    public ResponseEntity<CuentaBancaria> toggleBlock(@PathVariable Long id){
+        Optional<CuentaBancaria> cuentaBancariaOptional = Optional.ofNullable(this.cuentaBancariaService.find(id));
+        if(cuentaBancariaOptional.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        CuentaBancaria cuentaBancaria = cuentaBancariaOptional.get();
+        cuentaBancaria.setIsBlock(!cuentaBancaria.getIsBlock());
+        return ResponseEntity.ok(this.cuentaBancariaService.create(cuentaBancaria));
     }
 }
