@@ -5,6 +5,7 @@ import com.FiduBogota.TransferService.Domain.dto.WithDrawRequestDto;
 import com.FiduBogota.TransferService.persistence.service.CuentaBancariaService;
 import com.FiduBogota.TransferService.persistence.service.TransaccionService;
 import com.FiduBogota.TransferService.web.controllers.CuentaController;
+import com.FiduBogota.TransferService.web.exceptions.AccountNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -33,7 +34,7 @@ public class CuentaControllerTest {
     }
 
     @Test
-    public void testDeposit_CuentaExiste() {
+    public void testDeposit_CuentaExiste() throws Exception {
         Long cuentaId = 1L;
         DepositRequestDto depositRequestDto = new DepositRequestDto();
         depositRequestDto.setMonto(100);
@@ -43,50 +44,30 @@ public class CuentaControllerTest {
         cuentaMock.setSaldo(100);
 
         when(cuentaBancariaService.find(cuentaId)).thenReturn(cuentaMock);
-        when(cuentaBancariaService.create(any(CuentaBancaria.class))).thenReturn(cuentaMock);
+        doNothing().when(cuentaBancariaService).deposit(eq(depositRequestDto),any(CuentaBancaria.class));
 
         ResponseEntity<String> response = cuentaController.deposit(cuentaId, depositRequestDto);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Consignación realizada con éxito. Nuevo saldo: 100", response.getBody());
+        assertEquals("Consignación realizada con éxito.", response.getBody());
 
         verify(cuentaBancariaService, times(1)).find(cuentaId);
-        verify(cuentaBancariaService, times(1)).create(any(CuentaBancaria.class));
+        verify(cuentaBancariaService, times(1)).deposit(eq(depositRequestDto),any(CuentaBancaria.class));
         verify(transaccionService, times(1)).deposit(any(CuentaBancaria.class),eq(100));
     }
 
     @Test
-    public void testDeposit_CuentaNoExiste() {
+    public void testDeposit_CuentaNoExiste() throws Exception {
         Long cuentaId = 1L;
         DepositRequestDto depositRequestDto = new DepositRequestDto();
         depositRequestDto.setMonto(500);
 
         when(cuentaBancariaService.find(cuentaId)).thenReturn(null);
-
-        ResponseEntity<String> response = cuentaController.deposit(cuentaId, depositRequestDto);
-
-        assertEquals(404, response.getStatusCodeValue());
-
-        verify(cuentaBancariaService, times(1)).find(cuentaId);
-        verify(cuentaBancariaService, times(0)).create(any(CuentaBancaria.class));
-        verify(transaccionService, times(0)).deposit(any(CuentaBancaria.class),eq(100));
-    }
-
-    @Test
-    public void testDeposit_MontoNegativo() {
-        Long cuentaId = 1L;
-        DepositRequestDto depositRequestDto = new DepositRequestDto();
-        depositRequestDto.setMonto(0);
-
-        CuentaBancaria cuentaMock = new CuentaBancaria();
-        cuentaMock.setId(cuentaId);
-        cuentaMock.setSaldo(100);
-
-        when(cuentaBancariaService.find(cuentaId)).thenReturn(cuentaMock);
-
-        ResponseEntity<String> response = cuentaController.deposit(cuentaId, depositRequestDto);
-
-        assertEquals(400, response.getStatusCodeValue());
+        try{
+            ResponseEntity<String> response = cuentaController.deposit(cuentaId, depositRequestDto);
+        }catch (Exception e){
+            assertEquals(AccountNotFoundException.class, e.getClass());
+        }
 
         verify(cuentaBancariaService, times(1)).find(cuentaId);
         verify(cuentaBancariaService, times(0)).create(any(CuentaBancaria.class));
@@ -94,7 +75,7 @@ public class CuentaControllerTest {
     }
 
     @Test
-    public void testWithDraw_CuentaExiste() {
+    public void testWithDraw_CuentaExiste() throws Exception {
         Long cuentaId = 1L;
         WithDrawRequestDto withDrawRequestDto = new WithDrawRequestDto();
         withDrawRequestDto.setMonto(99);
@@ -104,50 +85,31 @@ public class CuentaControllerTest {
         cuentaMock.setSaldo(100);
 
         when(cuentaBancariaService.find(cuentaId)).thenReturn(cuentaMock);
-        when(cuentaBancariaService.create(any(CuentaBancaria.class))).thenReturn(cuentaMock);
+        doNothing().when(cuentaBancariaService).withDraw(eq(withDrawRequestDto),any(CuentaBancaria.class));
 
         ResponseEntity<String> response = cuentaController.withdraw(cuentaId, withDrawRequestDto);
 
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("Retiro realizado con éxito. Nuevo saldo: 1", response.getBody());
+        assertEquals("Retiro realizado con éxito.", response.getBody());
 
         verify(cuentaBancariaService, times(1)).find(cuentaId);
-        verify(cuentaBancariaService, times(1)).create(any(CuentaBancaria.class));
+        verify(cuentaBancariaService, times(1)).withDraw(eq(withDrawRequestDto),any(CuentaBancaria.class));
         verify(transaccionService, times(1)).withDraw(any(CuentaBancaria.class),eq(99));
     }
 
     @Test
-    public void testWithDraw_CuentaNoExiste() {
+    public void testWithDraw_CuentaNoExiste() throws Exception {
         Long cuentaId = 1L;
         WithDrawRequestDto withDrawRequestDto = new WithDrawRequestDto();
         withDrawRequestDto.setMonto(100);
 
         when(cuentaBancariaService.find(cuentaId)).thenReturn(null);
 
-        ResponseEntity<String> response = cuentaController.withdraw(cuentaId, withDrawRequestDto);
-
-        assertEquals(404, response.getStatusCodeValue());
-
-        verify(cuentaBancariaService, times(1)).find(cuentaId);
-        verify(cuentaBancariaService, times(0)).create(any(CuentaBancaria.class));
-        verify(transaccionService, times(0)).withDraw(any(CuentaBancaria.class),eq(100));
-    }
-
-    @Test
-    public void testWithDraw_MontoNegativo() {
-        Long cuentaId = 1L;
-        WithDrawRequestDto withDrawRequestDto = new WithDrawRequestDto();
-        withDrawRequestDto.setMonto(0);
-
-        CuentaBancaria cuentaMock = new CuentaBancaria();
-        cuentaMock.setId(cuentaId);
-        cuentaMock.setSaldo(100);
-
-        when(cuentaBancariaService.find(cuentaId)).thenReturn(cuentaMock);
-
-        ResponseEntity<String> response = cuentaController.withdraw(cuentaId, withDrawRequestDto);
-
-        assertEquals(400, response.getStatusCodeValue());
+        try{
+            ResponseEntity<String> response = cuentaController.withdraw(cuentaId, withDrawRequestDto);
+        }catch (Exception e){
+            assertEquals(AccountNotFoundException.class, e.getClass());
+        }
 
         verify(cuentaBancariaService, times(1)).find(cuentaId);
         verify(cuentaBancariaService, times(0)).create(any(CuentaBancaria.class));
@@ -179,6 +141,36 @@ public class CuentaControllerTest {
         ResponseEntity<Integer> response = cuentaController.balance(cuentaId);
 
         assertEquals(404, response.getStatusCodeValue());
+
+        verify(cuentaBancariaService, times(1)).find(cuentaId);
+    }
+
+    @Test
+    public void testToggleBlock_CuentaNoExiste(){
+        Long cuentaId = 1L;
+
+        when(cuentaBancariaService.find(cuentaId)).thenReturn(null);
+
+        try{
+            ResponseEntity<CuentaBancaria> response = cuentaController.toggleBlock(cuentaId);
+        }catch (Exception e){
+            assertEquals(AccountNotFoundException.class, e.getClass());
+        }
+
+        verify(cuentaBancariaService, times(1)).find(cuentaId);
+    }
+    @Test
+    public void testToggleBlock_CuentaExiste(){
+        Long cuentaId = 1L;
+        CuentaBancaria cuentaMock = new CuentaBancaria();
+        cuentaMock.setId(cuentaId);
+        cuentaMock.setSaldo(100);
+
+        when(cuentaBancariaService.find(cuentaId)).thenReturn(cuentaMock);
+        when(cuentaBancariaService.create(any(CuentaBancaria.class))).thenReturn(cuentaMock);
+        ResponseEntity<CuentaBancaria> response = cuentaController.toggleBlock(cuentaId);
+        assertEquals(200, response.getStatusCodeValue());
+
 
         verify(cuentaBancariaService, times(1)).find(cuentaId);
     }

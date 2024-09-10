@@ -3,6 +3,8 @@ package com.FiduBogota.TransferService.Domain.Entity;
 import com.FiduBogota.TransferService.Domain.Constants.TipoTransaccion;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 public class Transaccion {
 
     @Id

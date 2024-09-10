@@ -16,17 +16,21 @@ public class TransaccionService {
     private final TransaccionRepository transaccionRepository;
 
     public Transaccion deposit(CuentaBancaria cuentaBancaria, Integer monto){
-        final Transaccion transaccion = new Transaccion();
-        transaccion.setCuentaBancaria(cuentaBancaria);
-        transaccion.setMonto(monto);
-        transaccion.setTipo(TipoTransaccion.DEPOSITO);
+        final Transaccion transaccion = Transaccion.builder()
+                .cuentaBancaria(cuentaBancaria)
+                .tipo(TipoTransaccion.DEPOSITO)
+                .monto(monto)
+                .build();
+
         return this.transaccionRepository.save(transaccion);
     }
     public Transaccion withDraw(CuentaBancaria cuentaBancaria, Integer monto){
-        final Transaccion transaccion = new Transaccion();
-        transaccion.setCuentaBancaria(cuentaBancaria);
-        transaccion.setMonto(monto);
-        transaccion.setTipo(TipoTransaccion.RETIRO);
+        final Transaccion transaccion = Transaccion.builder()
+                .cuentaBancaria(cuentaBancaria)
+                .tipo(TipoTransaccion.RETIRO)
+                .monto(monto)
+                .build();
+
         return this.transaccionRepository.save(transaccion);
     }
 
